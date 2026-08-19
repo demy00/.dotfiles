@@ -58,8 +58,9 @@ config.keys = {
 }
 
 -- ---------- start straight into tmux ----------
--- Attaches to the 'main' session, creating it if needed. Comment out if you'd
--- rather land in a plain shell.
-config.default_prog = { "/bin/zsh", "-l", "-c", "tmux new-session -A -s main" }
+-- Left off deliberately: WezTerm lands in a plain shell, and the `t` alias
+-- starts or attaches tmux when you want it. Uncomment to have every window
+-- attach to the 'main' session automatically.
+-- config.default_prog = { "/bin/zsh", "-l", "-c", "tmux new-session -A -s main" }
 
 return config
