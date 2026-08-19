@@ -1,0 +1,13 @@
+.DS_Store
+*.swp
+
+# machine-local overrides — never commit
+zsh/zshrc.local
+git/gitconfig.local
+claude/settings.local.json
+
+# secrets, belt and braces
+.env
+.env.*
+*.pem
+*credentials*

@@ -1,0 +1,32 @@
+# Symlinked to ~/.gitconfig. Identity lives in ~/.gitconfig.local (untracked)
+# so this file is safe to make public.
+[include]
+    path = ~/.gitconfig.local
+
+[init]
+    defaultBranch = main
+[pull]
+    rebase = true
+[push]
+    autoSetupRemote = true
+[fetch]
+    prune = true
+[rebase]
+    autosquash = true
+[diff]
+    algorithm = histogram
+    colorMoved = zebra
+[merge]
+    conflictstyle = zdiff3
+
+[alias]
+    # the agent-review shortcuts
+    st = status -sb
+    br = branch --sort=-committerdate
+    last = log -1 --stat
+    # what did this branch actually change vs main?
+    review = diff main...HEAD
+    reviews = diff main...HEAD --stat
+    lg = log --oneline --graph --decorate -20
+    # undo the last commit, keep the changes
+    undo = reset --soft HEAD~1
