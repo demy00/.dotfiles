@@ -1,8 +1,7 @@
 # Agentic setup - decisions and execution plan
 
-Sits alongside `agentic-setup-macos.md` (the Kun Chen walkthrough),
-`practitioners.md` (who else to take from) and `readme.md` (the target dotfiles
-repo spec).
+Sits alongside `setup-guide.md` (the Kun Chen walkthrough), `practitioners.md`
+(who else to take from) and the repo's `README.md` (what this repo contains).
 
 **Read the reasoning, not just the choices.** The choices will look arbitrary in
 six months without it. That is the whole reason this file exists.
@@ -52,27 +51,39 @@ If a genuine confidentiality-constrained client ever appears, most of the
 
 ---
 
-## Ground truth, 2026-08-11
+## Ground truth, 2026-08-19
 
 Checked on disk, not remembered. The previous plan drifted from reality within a
-day and this section is the antidote.
+day and this section is the antidote. Re-checked at the top of every session that
+touches this file.
 
-| Claimed | Actual |
+| Item | State |
 |---|---|
-| `~/.dotfiles` private repo | does not exist |
-| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` = `"40"` | still `"50"` |
-| post-cull: 13 skills | 14 |
-| `personal-finance` skeleton (D8) | **zero commits**, no code, but 8 `.claude/commands/` and 2 skills present (deleted them)|
+| `~/.dotfiles` private repo | **exists**, `demy00/.dotfiles`, pushed, 10 symlinks live |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | **`"40"`** |
+| `MAX_THINKING_TOKENS` | **`"24000"`** - see the note below on where the old value came from |
+| Global skills | **0** (was 14). Cap is 5, so five slots free |
+| Global agents / commands | 13 / 8, unchanged, now tracked in the dotfiles repo |
+| `personal-finance` skeleton (D8) | **still zero commits.** Phase 1 deferred, not done |
 | `owndivision-frontend` AGENTS.md | still nothing |
-| dotfiles repo | exists only as `files/agentic-dotfiles.tar.gz`, inside a directory **untracked** in `stuff` |
 
 Also true and load-bearing: there are **zero `.planning/` directories anywhere on
 disk**. That is the same evidence used to convict GSD of never having been used,
 and it currently convicts the nine planning/TDD/verify capabilities that survived
-the cull.
+the cull. **Phase 1 has not run, so D17 still has no evidence behind it.**
 
-`practitioners.md` still links to `./setup-guide.md`, which is really
-`agentic-setup-macos.md`. Fixed by the rename in Phase 2.
+### Where `MAX_THINKING_TOKENS` and autocompact `50` actually came from
+
+Both were `everything-claude-code` defaults, not decisions. ECC's
+`docs/token-optimization.md` recommends the bundle
+`{model: sonnet, MAX_THINKING_TOKENS: 10000, CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: 50,
+CLAUDE_CODE_SUBAGENT_MODEL: haiku}`, and `50` was copied from it. The Dumb Zone
+reasoning below was applied to that number afterwards, not before it - the value
+was inherited and then rationalised. `model: opus` was the one part of the bundle
+that got overridden deliberately.
+
+This matters beyond the two settings: it is the install reflex leaving fingerprints
+on config, not just on capability count.
 
 ---
 
@@ -397,19 +408,24 @@ where it only surfaces in that repo.
 
 ---
 
-## Do now (minutes, not phases)
+## Do now (minutes, not phases) · DONE 2026-08-19
 
-1. **Commit `agentic-setup/` into `stuff`.** It is untracked. This file and the
-   entire dotfiles skeleton exist only as loose files plus a tarball in an
-   uncommitted directory, one `rm -rf` from unrecoverable. That is precisely the
-   failure Phase 2 was written to prevent, currently live.
-2. **`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: `"50"` → `"40"`** in
-   `~/.claude/settings.json`. Reasoned through twice, never applied.
-3. **Delete `personal-finance/.claude/commands/` and `skills/`.** Eight commands
-   and two skills in a repo with zero commits, all pre-cull leftovers. The cull
-   only swept `~/.claude`, not project directories.
-4. **Decide `MAX_THINKING_TOKENS`.** Removed during the cull, currently
-   uncapped. Was it a deliberate cost control?
+1. ~~**Commit `agentic-setup/` into `stuff`.**~~ Was already committed. Now
+   superseded outright: the canonical copies live in `~/.dotfiles`, and
+   `stuff/agentic-setup/` is a pointer.
+2. ~~**`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: `"50"` → `"40"`.**~~ Applied.
+3. ~~**Delete `personal-finance/.claude/commands/` and `skills/`.**~~ Was already
+   done; the repo is `.git` and nothing else.
+4. ~~**Decide `MAX_THINKING_TOKENS`.**~~ Set to `24000`. It was never a
+   deliberate control - it was an ECC default that left with ECC. See the ground
+   truth section. `24000` bounds the runaway tail while leaving ~75% of the
+   31,999 ceiling, because ECC's recommended `10000` came bundled with `sonnet`
+   and `haiku` subagents, and that whole posture is the inverse of D10.
+
+Also done the same day, not on the original list: the global skill set went from
+14 to **0**. All fourteen were ECC-derived pattern documents and none had ever
+been invoked. `tdd-workflow` went with them by explicit decision, which means
+**Phase 1's TDD leg now needs a replacement before it can run** - see Phase 1.
 
 ### Autocompact: why 40
 
@@ -428,14 +444,34 @@ measured optimum. Revisit if compaction starts interrupting work.
 
 ## Phase 1 - the skeleton, built with what's installed
 
-**This is the next action.** Everything else is downstream of what it reveals.
+**Still the next action.** Deferred once, on 2026-08-19, in favour of Phase 2.
+Everything else remains downstream of what it reveals, and nothing learned since
+has changed that.
 
 `personal-finance` has zero commits. Build the D8 skeleton - Expo running on web
 and device, SQLite with a seeded fixture, one Playwright test that opens the app
-and asserts something real - using `/plan` → `tdd-workflow` → `/verify` and
-nothing else. Read every line yourself.
+and asserts something real - using `/plan` → TDD → `/verify` and nothing else.
+Read every line yourself.
 
 Two things happen at once: D8 gets its harness, and D17 gets its evidence run.
+
+**Blocked on one thing.** The TDD leg no longer exists. `tdd-workflow` was
+deleted with the rest of the global skills on 2026-08-19, to be replaced by a
+better one that has not been written yet. Until it is, the options are that
+replacement, the `tdd-guide` **agent** (still installed, never run - and running
+it would put D15's claim that TDD wants shared context under actual test), or
+running `/plan` → `/verify` and letting the missing leg be the first named
+failure.
+
+Worth being honest about what happened here: `tdd-workflow` was deleted *before*
+it had ever run, in order to build something better. That is the exact shape D17
+prohibits, applied to D17's own evidence run. It may still be the right call -
+but it is the reflex, and it went unrecorded until now.
+
+**One D15 data point already banked, for free:** `/plan` is a command that
+dispatches the `planner` **agent**, so the planning stage is already an agent
+whether or not that was chosen. Watch during the run whether the separate context
+window helps or just loses the thread.
 
 **Record as you go**, because this is the candidate list for everything in
 Phase 6:
@@ -451,65 +487,93 @@ you have a written list of what the installed pipeline failed to do.
 
 ---
 
-## Phase 2 - dotfiles repo
+## Phase 2 - dotfiles repo · DONE 2026-08-19
 
 **Trigger:** already felt, twice. The cull was only recoverable because a tarball
-was made by hand, and that tarball is currently untracked.
+was made by hand, and that tarball was untracked.
 
-Create `~/.dotfiles` as a **private** GitHub repo. Private resolves the secrets
-question outright, but keep the `*.local` discipline anyway so it can be made
-public later without an audit.
+Built as `demy00/.dotfiles`, private, cloned to `~/.dotfiles`, pushed. Ten
+symlinks live. Both done-when criteria demonstrated rather than asserted: a line
+appended to `~/.tmux.conf` surfaced as `M tmux/tmux.conf` and reverted clean, and
+a second `./install.sh` run reports `ok` for all ten with no `~/.config/nvim/nvim`
+or `~/.claude/skills/skills` nesting.
+
+### What the execution changed about the plan
+
+**The sequencing was backwards, and it would have broken the machine.** These
+steps read as "write the repo, then link it into place". Done in that order, the
+tarball's 1,077-byte `zshrc` replaces a live 5,659-byte one carrying oh-my-zsh,
+nvm, conda/mambaforge, gcloud, Android SDK, Rancher and Antigravity - including
+the nvm that provides node v20.19.4, which Phase 4b's `no-mistakes` depends on.
+The tarball's `claude/CLAUDE.md` likewise overwrites the real global instructions
+with a placeholder.
+
+The rule that replaces it: **capture the machine into the repo first, refactor
+second.** The first commit records reality verbatim; splitting portable from
+machine-specific is a later, separately verifiable commit.
+
+**`--check` had to answer a different question than it did.** It reported
+`WRONG` for both "identical to the repo, linking loses nothing" and "real content
+that would be destroyed" - the two cases needing opposite reactions. A dry-run
+whose job is to clear the real run has to distinguish them: `SAME` / `DIFFERS` /
+`MISSING` / `RELINK`.
+
+**Tool-managed config blocks force the `*.local` split regardless of privacy.**
+`conda init` and Rancher Desktop rewrite their own blocks in `~/.zshrc` in place.
+With `~/.zshrc` symlinked into the repo, those tools edit tracked files behind
+your back. So the split isn't only about making the repo publishable - it is
+about not handing write access to your version control to a background updater.
+Same logic will apply to `claude/settings.json` the moment anything writes to it.
+
+Verification that the split was non-destructive ran in a scrubbed environment
+(`env -i` + a real `zsh -l -i`), because a first attempt inherited the parent
+shell's `PATH` and would have passed no matter what.
+
+### As built
 
 ```
 ~/.dotfiles/
 ├── install.sh              symlink bootstrap (idempotent, backs up what it replaces)
-├── Brewfile                brew bundle
+├── Brewfile                brew bundle - NOT yet run, see below
 ├── CHANGELOG.md            why things changed, not what
-├── wezterm/wezterm.lua  →  ~/.wezterm.lua
+├── wezterm/wezterm.lua  →  ~/.wezterm.lua           (default_prog left commented)
 ├── tmux/tmux.conf       →  ~/.tmux.conf
-├── nvim/init.lua        →  ~/.config/nvim/init.lua
+├── nvim                 →  ~/.config/nvim           (whole dir, not just init.lua)
 ├── claude/
 │   ├── CLAUDE.md        →  ~/.claude/CLAUDE.md
-│   ├── settings.json    →  ~/.claude/settings.json
+│   ├── settings.json    →  ~/.claude/settings.json  symlinked, decision below
 │   ├── agents/          →  ~/.claude/agents
 │   ├── commands/        →  ~/.claude/commands
-│   └── skills/          →  ~/.claude/skills
-├── git/gitconfig        →  ~/.gitconfig
-├── zsh/zshrc            →  ~/.zshrc
+│   └── skills/          →  ~/.claude/skills         empty - 0 global skills
+├── git/gitconfig        →  ~/.gitconfig             identity in ~/.gitconfig.local
+├── zsh/zshrc            →  ~/.zshrc                 machine bits in ~/.zshrc.local
 ├── templates/AGENTS.md     copied (not linked) into project repos
 └── docs/
     ├── setup-guide.md      ← agentic-setup-macos.md, renamed
     ├── practitioners.md
-    └── plan.md             ← this file
+    └── plan.md             ← this file, canonical copy
 ```
 
-Steps:
+Untracked companions, created by hand, never committed: `~/.zshrc.local`,
+`~/.gitconfig.local`. A fresh machine needs both written before `install.sh`
+gives a working shell - that is the price of the split and it should be in the
+setup guide.
 
-1. `git init`, private remote, first commit before any symlinking.
-2. Move the `agentic-setup/` files in, dropping the `.config` suffixes:
-   `wezterm.lua.config` → `wezterm/wezterm.lua`, `tmux.conf.config` →
-   `tmux/tmux.conf`, `nvim-init.lua.config` → `nvim/init.lua`,
-   `AGENTS.template` → `templates/AGENTS.md`.
-3. Fix the broken cross-links: `practitioners.md` points at `./setup-guide.md`
-   and `../CHANGELOG.md`; both resolve after step 2.
-4. Write `install.sh` with the `LINKS` table. **`ln -sfn`, not `ln -sf`** -
-   without `-n`, when the destination is an existing symlink to a directory, `ln`
-   follows it and creates the link *inside*, so a second run yields
-   `~/.config/nvim/nvim`. Single most common dotfiles bug.
-5. `install.sh --check` reports drift and changes nothing. Build this mode first
-   and use it to dry-run the other.
-6. Real files displaced by a link move once to `~/.dotfiles-backup/<timestamp>/`.
-7. `files/agentic-dotfiles.tar.gz` already contains a working skeleton of most of
-   this. Extract and compare rather than starting from nothing.
+**`settings.json`: symlinked.** It carries no machine-specific paths today, so
+versioning autocompact and the thinking cap is free. The `settings.local.json`
+split stays available for the first machine-specific value that appears. Note the
+precedent this is guarding against: the old GSD hooks hardcoded
+`/Users/demy00/.nvm/versions/node/v20.19.4/bin/node`.
 
-**Decide during execution:** whether `~/.claude/settings.json` is symlinked or
-copied. No secrets today, but it is the file most likely to acquire
-machine-specific paths - the old GSD hooks hardcoded
-`/Users/demy00/.nvm/versions/node/v20.19.4/bin/node`, which would have broken on
-any other machine. A `settings.local.json` split may be the better answer.
+**Brewfile is unrun.** `brew bundle check` wants to install **Tailscale**, which
+the deferred table says to hold until its trigger fires. Running `--brew` as
+written would breach that on the first invocation. It also reports tmux/git/node
+as outdated rather than absent, and there are two node installations - Homebrew's
+and nvm's v20.19.4, with nvm currently winning `PATH`. Split the Brewfile, or
+strip the deferred entries from it, before running.
 
-**Done when:** `git status` in `~/.dotfiles` reports config drift, and
-`./install.sh --check` on a clean checkout reports zero differences.
+**Done when:** ✅ `git status` in `~/.dotfiles` reports config drift, and
+`./install.sh --check` reports zero differences.
 
 ---
 
@@ -518,7 +582,7 @@ any other machine. A `settings.local.json` split may be the better answer.
 **Trigger:** already felt. `owndivision-frontend` has a `.claude/` directory and
 no instructions file at all.
 
-`agentic-setup-macos.md` calls the "Validating your work" section the
+`setup-guide.md` calls the "Validating your work" section the
 highest-return hour in the whole setup, because every later layer assumes the
 agent can prove a change works end-to-end before you see it. Without it, review
 degrades into you reading diffs - the exact bottleneck the stack exists to

@@ -43,12 +43,15 @@ Full walkthrough with explanations: [`docs/setup-guide.md`](docs/setup-guide.md)
 ├── nvim/                →  ~/.config/nvim
 ├── claude/
 │   ├── CLAUDE.md        →  ~/.claude/CLAUDE.md      global agent instructions
+│   ├── settings.json    →  ~/.claude/settings.json  (machine-specific in settings.local.json)
+│   ├── agents/          →  ~/.claude/agents         subagents, one file each
+│   ├── commands/        →  ~/.claude/commands       slash commands
 │   └── skills/          →  ~/.claude/skills         reusable agent skills
 ├── git/gitconfig        →  ~/.gitconfig             (identity in ~/.gitconfig.local)
 ├── zsh/zshrc            →  ~/.zshrc                 (overrides in ~/.zshrc.local)
 ├── templates/AGENTS.md     copy into each project repo
 └── docs/
-    ├── DECISIONS.md        every choice, why, and what would make it wrong
+    ├── plan.md             every choice, why, and what would make it wrong
     ├── setup-guide.md      how to build the whole thing, and why
     └── practitioners.md    who else is worth reading, with links
 ```
