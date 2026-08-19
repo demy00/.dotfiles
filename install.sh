@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — link every config in this repo into place.
+# install.sh - link every config in this repo into place.
 #
 # Safe to run repeatedly. Existing real files are backed up once to
 # ~/.dotfiles-backup/<timestamp>/ before being replaced. Existing symlinks that
@@ -57,15 +57,21 @@ link_one() {
   fi
 
   if $CHECK_ONLY; then
-    if [[ -e "$dest" || -L "$dest" ]]; then
-      red "WRONG    $dest  (exists, not linked to repo)"
+    if [[ ! -e "$dest" && ! -L "$dest" ]]; then
+      yellow "MISSING  $dest  (will be created)"
+    elif [[ -L "$dest" ]]; then
+      red "RELINK   $dest  (symlink -> $(readlink "$dest"))"
+    elif diff -rq "$src" "$dest" >/dev/null 2>&1; then
+      # byte-identical: linking loses nothing, no backup needed
+      green "SAME     $dest  (identical to repo, safe to link)"
     else
-      red "MISSING  $dest"
+      # the case that needs a human: real content that would be displaced
+      red "DIFFERS  $dest  (will be backed up - review before linking)"
     fi
     return
   fi
 
-  # back up anything real that's in the way (but not a stale symlink —
+  # back up anything real that's in the way (but not a stale symlink -
   # backing up a broken link is just noise)
   if [[ -e "$dest" && ! -L "$dest" ]]; then
     mkdir -p "$BACKUP/$(dirname "${dest#$HOME/}")"
@@ -96,7 +102,7 @@ if $RUN_BREW; then
     echo "running brew bundle..."
     brew bundle --file="$DOTFILES/Brewfile"
   else
-    red "brew not found — install Homebrew first"
+    red "brew not found - install Homebrew first"
   fi
 fi
 
