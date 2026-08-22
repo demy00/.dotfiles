@@ -14,3 +14,7 @@ claude/settings.local.json
 
 # lavish review artifacts - local scratch, not config
 .lavish/
+
+# python bytecode from skill scripts
+__pycache__/
+*.pyc
