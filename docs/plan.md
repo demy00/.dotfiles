@@ -62,15 +62,23 @@ touches this file.
 | `~/.dotfiles` private repo | **exists**, `demy00/.dotfiles`, pushed, 10 symlinks live |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | **`"40"`** |
 | `MAX_THINKING_TOKENS` | **`"24000"`** - see the note below on where the old value came from |
-| Global skills | **0** (was 14). Cap is 5, so five slots free |
-| Global agents / commands | 13 / 8, unchanged, now tracked in the dotfiles repo |
-| `personal-finance` skeleton (D8) | **still zero commits.** Phase 1 deferred, not done |
-| `owndivision-frontend` AGENTS.md | still nothing |
+| Global skills | **5 of 5** - `pipeline`, `tdd`, `typescript`, `expo`, `lavish`. Was 14, culled to 0, rebuilt deliberately. **Cap is met; a sixth means removing one** |
+| Global agents / commands | **16 / 9**. `planner` and `/plan` deleted 2026-08-22, superseded by D18's three planning agents |
+| Pipeline (D18) | **built**, `~/.dotfiles/claude/`. Never run |
+| `OPENROUTER_API_KEY` | **not set** - placeholder in `~/.zshrc.local`. The gate fails closed without it |
+| `personal-finance` skeleton (D8) | **still zero commits.** Phase 1 deferred twice |
+| `owndivision-frontend` AGENTS.md | still nothing. Has 4 uncommitted skills (`vitest`, `playwright-e2e`, `tanstack`, `orval-api`) awaiting review, plus `grill-me` and `pony-tail` already committed from Erik's pipeline |
+| Erik conversation | **still not had**, asked three times |
 
 Also true and load-bearing: there are **zero `.planning/` directories anywhere on
 disk**. That is the same evidence used to convict GSD of never having been used,
-and it currently convicts the nine planning/TDD/verify capabilities that survived
-the cull. **Phase 1 has not run, so D17 still has no evidence behind it.**
+and it convicted the nine planning/TDD/verify capabilities that survived the cull
+- all of which have now been deleted or replaced without ever running.
+
+**D17 still has no evidence behind it.** The pipeline that replaced those
+capabilities has not run either. The same test applies to it and it has not yet
+been taken: when Phase 1 completes, there is a `docs/features/` tree on disk or
+there is not.
 
 ### Where `MAX_THINKING_TOKENS` and autocompact `50` actually came from
 
@@ -265,11 +273,17 @@ anything. Gating an empty repo produces the ceremony of validation with none of
 the substance, which is worse than no gate because it feels safe. This is also
 the code you are about to delegate your judgement to.
 
-**Amended 2026-08-11:** build it *using the already-installed pipeline*
-(`/plan` → `tdd-workflow` → `/verify`) rather than by hand, while still reading
-every line yourself. Same skeleton, same line-by-line review, and it doubles as
-the evidence run D17 requires. Building it by hand would leave the pipeline
-question untested for another week.
+**Amended 2026-08-11:** build it *using a pipeline* rather than by hand, while
+still reading every line yourself. Same skeleton, same line-by-line review, and
+it doubles as the evidence run D17 requires. Building it by hand would leave the
+pipeline question untested for another week.
+
+**Re-amended 2026-08-22:** the pipeline in question is now D18's, not the
+installed one - `/plan` and `tdd-workflow` were deleted. The argument is
+unchanged and the stakes are higher: this skeleton is the first thing D18's
+pipeline has ever been asked to build, so it tests the harness and the code at
+the same time. If the pipeline is going to fail, better it fails on a greenfield
+repo with no users than on `owndivision`.
 
 ### D9 - `gnhf` installed but not designed around · `provisional`
 
@@ -351,13 +365,25 @@ decides which stages get which.
   one task; writing tests in a window that can't see the design discussion is
   worse, and a subagent round-trip per red-green cycle is slow and expensive for
   something invoked constantly. TDD is a **skill** (`/tdd`).
-- Planning is genuinely arguable and currently unassigned. `planner` and
-  `architect` are agents, `/plan` is a command. The first real run should settle
-  it by observation.
+- ~~Planning is genuinely arguable and currently unassigned.~~ **Settled
+  2026-08-22 by D18: planning is three agents** (`task-analyst`,
+  `solution-architect`, `implementation-planner`). Settled by design rather than
+  by the observation this bullet asked for - the reason is that each planning
+  stage wants a window uncontaminated by the previous one's commitments, which is
+  the same argument as review. `/plan` and `planner` are deleted.
 
 **Why this is written down:** the original instinct was to convert everything to
 skills for the slash-command ergonomics, which would have silently removed the
 one property the review design depends on.
+
+**Amended by D18 - there are three layers, not two.** Skills are also the only
+**portable** layer: `SKILL.md` is read by Claude Code, opencode, Codex and others,
+while agent and command files are harness-specific. So the choice is not just
+"fresh context or shared", it is also "does this need to survive a change of
+harness". The rule that follows: **all substance goes in skills; agents and
+commands carry only which stage they are, which skills they load, and what they
+hand back.** The test - delete every agent and command file; if the pipeline can
+still be driven from the skills alone, the knowledge is in the right layer.
 
 ### D16 - Small batches enforced at plan time, with a readable plan as the backstop · `provisional`
 
@@ -393,11 +419,10 @@ opinion. Every trigger elsewhere in this file is downstream of this one - they
 are all forms of "wait for the failure before buying the fix", and they are
 worthless if this one isn't honoured.
 
-**Concretely, right now:** `/plan`, `tdd-workflow` and `/verify` are installed
-and have never run. The proposed planner → spec → test → implement → verify
-pipeline is those three plus a spec step. Run them first. If they work, the
-pipeline is finished. If they fail, the failure names what to build, and that
-name is the only thing D17 accepts as a reason to build it.
+~~**Concretely, right now:** `/plan`, `tdd-workflow` and `/verify` are installed
+and have never run.~~ **Overtaken 2026-08-22.** `tdd-workflow` was deleted before
+it ever ran, and `/plan` was deleted as superseded. See D18, and read the
+honesty note there - this is the rule being bent by the person who wrote it.
 
 **This also governs `~/.claude` size.** Cap the global set at 5 skills; a sixth
 means removing one. A skill's body loads only when invoked, but its name and
@@ -405,6 +430,91 @@ means removing one. A skill's body loads only when invoked, but its name and
 which is what 125 installed skills actually cost. Optimise the `description`
 field, not the body. Anything stack-specific lives in `<repo>/.claude/skills/`
 where it only surfaces in that repo.
+
+**The cap is currently exactly met**: `pipeline`, `tdd`, `typescript`, `expo`,
+`lavish`. A sixth global skill means removing one of those.
+
+### D18 - Our own language-agnostic pipeline, borrowed not adopted · `firm` (new, governing for how work gets built)
+
+Feature work runs through a pipeline **we own**: analyse → plan → spec → gate →
+build → verify → lock. Built 2026-08-22 as 10 files, in `~/.dotfiles/claude/`.
+
+**Why not adopt `szobonyaerik/agentic-avengers` wholesale.** It is Erik's, it is
+well engineered, and it is the source of nearly every good idea below. Three
+things made adoption wrong:
+
+1. **It is Python-only.** Zero references to any JS/TS runner anywhere in its
+   `scripts/`, `skills/`, `agents/` or `docs/`; `pytest` throughout, `cosmic-ray`
+   for mutation, tree-sitter grammars for Python/Java/C. Phase 1 is
+   TypeScript (D6). The gate, verifier, coverage tracing and cost gate would all
+   have had nothing to run.
+2. **197 files, 11 agents, 13 skills, ~58 scripts and 14 hook invocations** -
+   against a post-cull baseline of 13 agents and 0 hooks. Installing it reverses
+   Phase 0 in one command.
+3. **You cannot edit what you install.** Phase 6 already says vendoring beats
+   installing the framework, precisely because the `description` text is the
+   recurring cost and a package update overwrites your edits. Making it
+   language-agnostic was the requirement, and that is not a thing you can do to
+   someone else's package.
+
+**The architecture, and the one idea it rests on.** Every Python assumption in
+the upstream is a **value, not a structure** - seven of them: test command,
+coverage command, mutation command, codemap grammar, cost-gate marker, layout
+roots, lint command. Pull the values out and the structure is already
+language-agnostic. So:
+
+- **`skills/pipeline`** holds the stage contract and contains **no language,
+  framework or tool names at all**. That is a rule the file states about itself
+  and is checkable with a grep.
+- **Each repo's `AGENTS.md`** declares its own values in a `## Pipeline` block.
+  That is also the mechanism by which a repo names its language skill - so
+  **Phase 3 stops competing with this work and becomes part of it.**
+- **Language skills** (`typescript`, `expo`, `vitest`, …) hold the idioms.
+- **`skills/tdd`** is the red-green loop, adapted from `mattpocock/skills` (MIT)
+  via the upstream, with its phase bookkeeping dropped.
+
+**What was kept from upstream, because these are the good parts:** the closed
+four-item blocking set (missing requirement · contradiction · untestable
+criterion · unhandled critical edge case, and *everything else is a note that
+never blocks*); the 12-requirement cap that **splits rather than rejects**; the
+`binding: e2e | integration | none` table; cross-family decorrelation; and
+locked-after-verify.
+
+**What was left out, each with a re-entry condition:** mutation testing, codemap,
+breaker, handover archive, amendments, carried items, metrics, the opencode
+adapter, the CI floor, the `no-mistakes` ship gate (that stays in Phase 4b), and
+**all 14 hooks**. Each returns only when something fails without it. That list is
+Phase 6's candidate set, generated by use rather than by reading.
+
+**Hooks: zero, deliberately.** Every gate is a command until a gate is actually
+skipped. Hooks stay a **global** concern when they arrive - per-repo hook
+maintenance is too much overhead - which forces one constraint worth writing
+down: **a global hook fires in every repo**, so it must answer "is this a
+pipeline repo?" and exit in milliseconds when the answer is no. The upstream's
+spec-gate hook has a 720-second timeout on every `Write|Edit`; that cost landing
+while you edit your dotfiles is the failure mode.
+
+**The gate fails closed.** No key, unreachable model, unparseable verdict, or a
+**same-family model** all stop the run. All four refusals are tested. A gate that
+degrades silently still reports approval, which is worse than not having one.
+
+**Cost:** the gate calls OpenRouter per spec, outside the Claude subscription.
+Bound it at the provider, not in our code, so the cap holds when the code is
+wrong. Key lives in `~/.zshrc.local`, untracked.
+
+**Honesty note, because this file is for the reasoning and not the decisions.**
+D17 says nothing new gets built until what is installed has been run. This was
+built anyway: `tdd-workflow` was deleted *before it had ever run once*, in order
+to replace it with something better. That is the install reflex in its exact
+documented shape, applied to D17's own evidence run, and it is the first firing
+that happened *after* the rule against it was written. The mitigations are real -
+it is one coherent framework rather than a magpie collection, it is trimmed to a
+tenth of its source, and the global skill count went 14 → 0 → 5. But the rule was
+bent, not honoured, and the next person reading this should know that rather than
+inherit a clean story.
+
+**Revisit when:** the first real feature runs through it. Whatever the pipeline
+fails to do is the only thing D17 accepts as a reason to add to it.
 
 ---
 
@@ -442,48 +552,57 @@ measured optimum. Revisit if compaction starts interrupting work.
 
 ---
 
-## Phase 1 - the skeleton, built with what's installed
+## Phase 1 - the skeleton, and the pipeline's first real feature
 
-**Still the next action.** Deferred once, on 2026-08-19, in favour of Phase 2.
-Everything else remains downstream of what it reveals, and nothing learned since
-has changed that.
+**Still the next action.** Deferred twice - 2026-08-19 for Phase 2, 2026-08-22
+for D18's pipeline. Everything else remains downstream of what it reveals, and
+nothing learned since has changed that. **A third deferral would mean this plan
+has become a setup project rather than a working method.**
 
 `personal-finance` has zero commits. Build the D8 skeleton - Expo running on web
 and device, SQLite with a seeded fixture, one Playwright test that opens the app
-and asserts something real - using `/plan` → TDD → `/verify` and nothing else.
+and asserts something real.
+
+**No longer blocked.** The TDD leg exists again as `skills/tdd`, and the whole
+route is now D18's pipeline: `task-analyst` → `solution-architect` →
+`implementation-planner` → `/spec` → `/spec-gate` → `tdd` → `verifier`.
 Read every line yourself.
 
-Two things happen at once: D8 gets its harness, and D17 gets its evidence run.
+**Three things happen at once now:** D8 gets its harness, D17 gets its evidence
+run, and the pipeline gets validated by use rather than designed in the abstract.
+That last one is the reason building the pipeline first was not simply another
+deferral - the skeleton is its first feature, not a thing that waits behind it.
 
-**Blocked on one thing.** The TDD leg no longer exists. `tdd-workflow` was
-deleted with the rest of the global skills on 2026-08-19, to be replaced by a
-better one that has not been written yet. Until it is, the options are that
-replacement, the `tdd-guide` **agent** (still installed, never run - and running
-it would put D15's claim that TDD wants shared context under actual test), or
-running `/plan` → `/verify` and letting the missing leg be the first named
-failure.
+**Before it can start:** `OPENROUTER_API_KEY` in `~/.zshrc.local`, then
+`python3 ~/.claude/skills/pipeline/gate.py --check`. Without it the gate cannot
+run and this degrades into plan → TDD → verify, which is what Phase 1 was going
+to be before any of this.
 
-Worth being honest about what happened here: `tdd-workflow` was deleted *before*
-it had ever run, in order to build something better. That is the exact shape D17
-prohibits, applied to D17's own evidence run. It may still be the right call -
-but it is the reflex, and it went unrecorded until now.
-
-**One D15 data point already banked, for free:** `/plan` is a command that
-dispatches the `planner` **agent**, so the planning stage is already an agent
-whether or not that was chosen. Watch during the run whether the separate context
-window helps or just loses the thread.
+**Write `personal-finance/AGENTS.md` first**, with the `## Pipeline` block. The
+pipeline reads its commands from there and will stop rather than guess. Values
+confirmed against Expo's own docs: **`jest` with the `jest-expo` preset - not
+vitest** - Playwright for the web target, platform-suffixed test files
+(`.test.web.tsx`, `.test.ios.tsx`), mutation `none`. Expo documenting a
+first-class Playwright path is also independent confirmation of **D6**, whose
+whole bet was that `react-native-web` gives an agent a drivable surface.
 
 **Record as you go**, because this is the candidate list for everything in
 Phase 6:
 
 - which stage produced a step too large to review in one sitting (D16)
 - where a stage wanted fresh context and didn't have it, or vice versa (D15)
-- what the missing "spec" step would actually have caught
-- whether `/verify` produced anything resembling D4's schema
+- **what the gate blocked on, and whether the closed four-item set was the right
+  four** - this is the single most valuable thing the run produces
+- whether the cross-family gate caught anything a same-family read would not have
+- what the `verifier` found in tests that were already green
+- what the pipeline could not do at all - the only thing D17 accepts as a reason
+  to add to it
+- **what a gate call actually costs**, so D18's spend assumption stops being one
 
 **Done when:** the app runs on web, an agent can start it, drive it and observe
-the result, `AGENTS.md`'s validation section is written against that harness, and
-you have a written list of what the installed pipeline failed to do.
+the result, `AGENTS.md`'s validation section is written against that harness, one
+requirement has gone from spec to locked test, and you have a written list of
+what the pipeline failed to do.
 
 ---
 
@@ -833,14 +952,28 @@ Stated plainly so they're falsifiable.
 ## Execution order
 
 ```
-Do now    commit agentic-setup, autocompact 40, clean personal-finance/.claude   minutes
-Phase 1   skeleton via the installed pipeline (D8 + D17 evidence)                 days
-Phase 2   dotfiles repo                                                           ~half a day
-Phase 3   AGENTS.md across shared repos, frontend first                           hours per repo
-Phase 5   measure test-suite times           starts in parallel with Phase 3
-Phase 4b  no-mistakes on personal-finance    after Phase 1
-Phase 4a  local fresh-context review on owndivision
-Phase 6   workflow capabilities              only from Phase 1 and 4 evidence
-Phase 5   (continues - codebase work)
-Phase 7   treehouse + parallelism            only after 1, 4 and 5 show results
+DONE  Do now    autocompact 40, thinking 24000, personal-finance/.claude   2026-08-19
+DONE  Phase 2   dotfiles repo, 10 symlinks, *.local splits                 2026-08-19
+DONE  D18       the pipeline - 10 files, never run                        2026-08-22
+
+NEXT  Phase 1   the skeleton, as the pipeline's first feature              days
+                blocked only on OPENROUTER_API_KEY
+                deferred twice already - a third time and this plan is a
+                setup project rather than a working method
+
+      Phase 3   AGENTS.md across shared repos, frontend first             hours per repo
+                now partly merged into D18: each repo's ## Pipeline block
+                is the language binding, so this is one task not two
+      Phase 5   measure test-suite times      in parallel with Phase 3
+      Phase 4b  no-mistakes on personal-finance   after Phase 1
+      Phase 4a  local fresh-context review on owndivision
+      Phase 6   pipeline additions            only from Phase 1 evidence
+      Phase 5   (continues - codebase work)
+      Phase 7   treehouse + parallelism       only after 1, 4 and 5
 ```
+
+**The one carried debt:** the Erik conversation has been asked three times and
+answered none. It is not blocking Phase 1, which is solo. It blocks Phase 3, and
+it is now less hypothetical than when D2 was written - his pipeline's `grill-me`
+and `pony-tail` skills are already committed in `owndivision-frontend`, and D18
+borrows heavily from his design.
